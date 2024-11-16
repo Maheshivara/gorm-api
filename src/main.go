@@ -34,12 +34,12 @@ func main() {
 	app := gin.Default()
 	app.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
 
-	app.GET("/docs", func(c *gin.Context) {
+	api := app.Group("/api")
+
+	api.GET("/docs", func(c *gin.Context) {
 		c.Redirect(301, "/docs/index.html")
 	})
-	app.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	api := app.Group("/api")
+	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	foodRouter := routers.FoodRouter()
 	foodGroup := api.Group("/foods")
