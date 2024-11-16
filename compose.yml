@@ -1,0 +1,29 @@
+services:
+  database:
+    build:
+      dockerfile: ./docker/database/Dockerfile
+      context: ./
+    environment:
+      - POSTGRES_PASSWORD=password
+    env_file:
+      - .env
+    volumes:
+      - api-data:/var/lib/postgresql/data
+    networks:
+      - api-network
+  server:
+    build:
+      dockerfile: ./docker/server/Dockerfile
+      context: ./
+    env_file:
+      - .env
+    networks:
+      - api-network
+    ports:
+      - ${SERVER_PORT}:8080
+    depends_on:
+      - database
+volumes:
+  api-data:
+networks:
+  api-network:
