@@ -1,0 +1,110 @@
+basePath: /api
+definitions:
+  models.Food:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updatedAt:
+        type: string
+    type: object
+  request.Food:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - name
+    - price
+    type: object
+  response.ApiError:
+    properties:
+      error:
+        type: string
+    type: object
+  response.SearchResult:
+    properties:
+      data: {}
+      page:
+        type: integer
+      perPage:
+        type: integer
+      total:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+info:
+  contact:
+    email: lgcs10@aluno.ifal.edu.br
+    name: Luis Gabriel da Costa Silva
+  description: API simples para demonstrar o uso de containers Docker e suas integrações
+    usando Docker Compose.
+  title: API de Comida.
+  version: "1.0"
+paths:
+  /foods:
+    get:
+      description: Retorna a lista de comidas cadastradas.
+      parameters:
+      - description: Número da página
+        in: query
+        name: page
+        type: integer
+      - description: Número de resultados por página
+        in: query
+        name: perPage
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SearchResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiError'
+      summary: Lista Comidas.
+      tags:
+      - Comida
+    post:
+      consumes:
+      - application/json
+      description: Cadastra uma nova Comida.
+      parameters:
+      - description: Informações da nova Comida
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.Food'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Food'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiError'
+      summary: Adiciona Comida.
+      tags:
+      - Comida
+swagger: "2.0"
