@@ -29,6 +29,37 @@ A API possui apenas 3 endpoints (4 se o redirect for considerado), sendo eles:
 Usando a imagem do postgres como base tive que criar um script para criar o usuário pelo qual a API poderia acessar, evitando privilégios de administrador, para tal o [script de belpro-ci](https://gist.github.com/beldpro-ci/bc8d1a48f6a012a1b494460aac84796a#file-01-filladb-sh) foi de grande ajuda, embora tenha sido necessário algumas pequenas alterações para o funcionamento correto nessa aplicação.
 
 Nesse script é criado um novo usuário (conforme definido nas variáveis de ambiente) e garantido a ele privilegio de operar em um banco de dados especifico (junto ao esquema public desse mesmo banco de dados).
+## O compose
+### Serviços
+#### Server
+Usando a imagem `golang:alpine3.20` como base para _buildar_ o projeto e a `alpine:3.20` sua [Dockerfile](./docker/server/Dockerfile) pode ser resumida no processo de:
+  1. Estágio **builder**:
+      1. Copiar os arquivos que detalham as dependências.
+      2. Realizar o download dessas dependências.
+      3. Copiar o código fonte.
+      4. Realizar o _build_ do código fonte para o binário `app` (uma das vantagens de usar golang).
+  2. Estágio Final
+      1. Copiar o binário gerado no estágio anterior
+      2. Copiar o script de inicio da aplicação (basicamente esperando 5s pelo banco de dados antes de iniciar de fato) e dar permissão de execução.
+      3. Colocar o script para executar na inicialização do container e expor a porta usada pela API.
+#### Database
+O banco de dados já veio quase que completamente configurado através da imagem `postgres:16-alpine` mas como foi solicitado o uso de um usuário exclusivo e sem privilégios de administrador para a aplicação se fez necessário o uso de um [script shell](./docker/database/001_init.sh), para tal foi criada uma nova [Dockerfile](./docker/database/Dockerfile) na qual simplesmente o script é copiado para o diretório `/docker-entrypoint-initdb.d/` do container, que executa automaticamente durante a inicialização.
+
+O script é dividido em duas funções:
+- `check_env_vars_set()` que como o nome diz, verifica se todas as variáveis de ambiente que são usadas existem.
+
+e
+
+- `init_user_and_db()` que usa o comando `psql` para acessar ao banco como administrador e:
+  1. Criar o usuário que vai ser usado pela aplicação com uma senha predefinida (pelo `.env`).
+  2. Criar o banco de dados no qual a aplicação salvará os dados.
+  3. Garantir todos os privilégios do novo banco de dados para o usuário da aplicação.
+  4. Acessar o banco de dados criado no passo 2 como administrador e garantir acesso ao `schema public` (para que o gorm possa criar as tabelas necessárias).
+
+### Rede
+Para isolar o container do banco de dados (database), foi criada a rede `api-network` que engloba os dois containers, permitindo a comunicação entre eles, mas proibindo acesso de elementos fora dessa rede.
+### Volume
+O único volume que se fez necessário foi o nomeado `api-data` que mapeia para `/var/lib/postgresql/data` do container database, esse diretório é onde se encontra os dados salvos no banco de dados, fazendo com que eles possam persistir entre execuções dos containers.
 ## Como Rodar
 1. Clone esse repositório em seu diretório de preferência.
 2. Dentro da pasta do repositório, copie o arquivo [.env.example](./.env.example) para `.env`
