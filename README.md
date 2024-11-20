@@ -24,8 +24,8 @@ A API possui apenas 3 endpoints (4 se o redirect for considerado), sendo eles:
 
 - Retorna a lista de comidas cadastradas no banco de dados, com paginação.
 - Possui dois parâmetros de Query:
-  - `perPage`: Define a quantidade de itens a ser retornada em uma página.
-  - `page`: Define a página a ser retornada (com base na quantidade de items do `perPage`).
+  - `perPage`: Define a quantidade de itens a ser retornada em uma página (int).
+  - `page`: Define a página a ser retornada (com base na quantidade de items do `perPage`) (int).
 
 #### **POST** /api/foods
 
@@ -33,6 +33,21 @@ A API possui apenas 3 endpoints (4 se o redirect for considerado), sendo eles:
 - Recebe no corpo da requisição:
   - `name`: O nome da nova comida.
   - `price` O preço da nova comida.
+
+#### **PUT** /api/foods/:id
+
+- Altera os dados de uma comida no banco de dados e retorna as informações atualizadas em caso de sucesso.
+- Recebe no _path_:
+   - `id`: ID da comida a ser atualizada (uuid)
+- Recebe no corpo da requisição:
+  - `name`: O nome da nova comida (string).
+  - `price` O preço da nova comida (float).
+
+#### **DELETE** /api/foods/:id
+
+- Remove uma comida do banco de dados.
+- Recebe no _path_:
+   - `id`: ID da comida a ser removida (uuid)
 
 #### **GET** /api/docs/index.html
 
