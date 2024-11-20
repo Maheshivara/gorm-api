@@ -20,10 +20,7 @@ func FoodService() Food {
 }
 
 func (*food) Create(food *models.Food) (*models.Food, error) {
-	driver, err := driver.New()
-	if err != nil {
-		return nil, err
-	}
+	driver := driver.Get()
 
 	tx := driver.Create(food)
 	if tx.Error != nil {
@@ -39,10 +36,7 @@ func (*food) List(pageInfo *response.Pagination) (*response.SearchResult, error)
 
 	var foodList []*models.Food
 	var total int64 = 0
-	driver, err := driver.New()
-	if err != nil {
-		return nil, err
-	}
+	driver := driver.Get()
 
 	tx := driver.Model(&models.Food{}).Count(&total).Offset(offset).Limit(pageInfo.PerPage).Find(&foodList)
 	if tx.Error != nil {
@@ -58,10 +52,7 @@ func (*food) List(pageInfo *response.Pagination) (*response.SearchResult, error)
 }
 
 func (*food) Update(food *models.Food) (*models.Food, error) {
-	driver, err := driver.New()
-	if err != nil {
-		return nil, err
-	}
+	driver := driver.Get()
 
 	tx := driver.Save(food)
 	if tx.Error != nil {
@@ -72,10 +63,7 @@ func (*food) Update(food *models.Food) (*models.Food, error) {
 }
 
 func (*food) Delete(food *models.Food) (bool, error) {
-	driver, err := driver.New()
-	if err != nil {
-		return false, err
-	}
+	driver := driver.Get()
 
 	tx := driver.Delete(food)
 	if tx.Error != nil {
