@@ -33,7 +33,10 @@ func Migrate() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	DB.AutoMigrate(&models.Food{})
+	err = DB.AutoMigrate(&models.Food{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 func Get() *gorm.DB {
 	return DB
