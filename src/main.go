@@ -37,14 +37,16 @@ func main() {
 	api := app.Group("/api")
 
 	api.GET("/docs", func(c *gin.Context) {
-		c.Redirect(301, "/docs/index.html")
+		c.Redirect(301, "/api/docs/index.html")
 	})
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	foodRouter := routers.FoodRouter()
 	foodGroup := api.Group("/foods")
 	foodGroup.POST("", foodRouter.Create)
+	foodGroup.PUT("/:id", foodRouter.Update)
 	foodGroup.GET("", foodRouter.List)
+	foodGroup.DELETE("/:id", foodRouter.Delete)
 
 	app.Run(fmt.Sprintf(":%s", serverPort))
 }
