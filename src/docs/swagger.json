@@ -94,6 +94,109 @@
                     }
                 }
             }
+        },
+        "/foods/{id}": {
+            "put": {
+                "description": "Atualiza uma Comida existente.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comida"
+                ],
+                "summary": "Atualiza Comida.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID da Comida",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Novas Informações da Comida",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Food"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Food"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deleta uma Comida existente.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comida"
+                ],
+                "summary": "Remove Comida.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "ID da Comida",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -101,22 +204,24 @@
             "type": "object",
             "properties": {
                 "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-11-20T02:18:56.744307Z"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "4e51bdb9-c75a-4198-8f2d-9695e3ffaa83"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Macarrão à Milanesa"
                 },
                 "price": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 15.47
                 },
                 "updatedAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-11-20T02:18:56.744307Z"
                 }
             }
         },
@@ -128,10 +233,12 @@
             ],
             "properties": {
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Arroz com Passas"
                 },
                 "price": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 14.75
                 }
             }
         },
@@ -146,15 +253,23 @@
         "response.SearchResult": {
             "type": "object",
             "properties": {
-                "data": {},
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Food"
+                    }
+                },
                 "page": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "perPage": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 20
                 },
                 "total": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 15
                 }
             }
         }
