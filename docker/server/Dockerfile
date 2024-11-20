@@ -12,7 +12,5 @@ RUN go build -o ./app
 FROM alpine:3.20
 WORKDIR /api
 COPY --from=builder /api/src/app ./app
-COPY ./docker/server/start.sh ./start.sh
-RUN chmod +x ./start.sh
-CMD [ "./start.sh" ]
+CMD [ "./app" ]
 EXPOSE ${SERVER_PORT}
