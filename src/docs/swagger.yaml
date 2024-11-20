@@ -3,23 +3,28 @@ definitions:
   models.Food:
     properties:
       createdAt:
-        type: string
-      deletedAt:
+        example: "2024-11-20T02:18:56.744307Z"
         type: string
       id:
+        example: 4e51bdb9-c75a-4198-8f2d-9695e3ffaa83
         type: string
       name:
+        example: Macarrão à Milanesa
         type: string
       price:
+        example: 15.47
         type: number
       updatedAt:
+        example: "2024-11-20T02:18:56.744307Z"
         type: string
     type: object
   request.Food:
     properties:
       name:
+        example: Arroz com Passas
         type: string
       price:
+        example: 14.75
         type: number
     required:
     - name
@@ -32,12 +37,18 @@ definitions:
     type: object
   response.SearchResult:
     properties:
-      data: {}
+      data:
+        items:
+          $ref: '#/definitions/models.Food'
+        type: array
       page:
+        example: 1
         type: integer
       perPage:
+        example: 20
         type: integer
       total:
+        example: 15
         type: integer
     type: object
 externalDocs:
@@ -105,6 +116,75 @@ paths:
           schema:
             $ref: '#/definitions/response.ApiError'
       summary: Adiciona Comida.
+      tags:
+      - Comida
+  /foods/{id}:
+    delete:
+      description: Deleta uma Comida existente.
+      parameters:
+      - description: ID da Comida
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ApiError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiError'
+      summary: Remove Comida.
+      tags:
+      - Comida
+    put:
+      consumes:
+      - application/json
+      description: Atualiza uma Comida existente.
+      parameters:
+      - description: ID da Comida
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Novas Informações da Comida
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/request.Food'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Food'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ApiError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiError'
+      summary: Atualiza Comida.
       tags:
       - Comida
 swagger: "2.0"

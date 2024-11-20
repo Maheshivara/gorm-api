@@ -9,6 +9,8 @@ import (
 
 type Food interface {
 	Create(food *models.Food) (*models.Food, error)
+	Update(food *models.Food) (*models.Food, error)
+	Delete(food *models.Food) (bool, error)
 	List(pageInfo *response.Pagination) (*response.SearchResult, error)
 }
 type food struct{}
@@ -53,4 +55,35 @@ func (*food) List(pageInfo *response.Pagination) (*response.SearchResult, error)
 		Page:    pageInfo.Page,
 	}
 	return res, nil
+}
+
+func (*food) Update(food *models.Food) (*models.Food, error) {
+	driver, err := driver.New()
+	if err != nil {
+		return nil, err
+	}
+
+	tx := driver.Save(food)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return food, nil
+}
+
+func (*food) Delete(food *models.Food) (bool, error) {
+	driver, err := driver.New()
+	if err != nil {
+		return false, err
+	}
+
+	tx := driver.Delete(food)
+	if tx.Error != nil {
+		return false, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
