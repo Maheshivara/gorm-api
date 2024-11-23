@@ -18,7 +18,7 @@ A API é bastante simples possuindo apenas um modelo de `Food` o qual é mapeado
 
 ### Endpoints
 
-A API possui apenas 3 endpoints (4 se o redirect for considerado), sendo eles:
+A API possui apenas 5 endpoints (6 se o redirect for considerado), sendo eles:
 
 #### **GET** /api/foods
 
