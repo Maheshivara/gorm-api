@@ -3,20 +3,20 @@ services:
     build:
       dockerfile: ./docker/database/Dockerfile
       context: ./
-    environment:
-      - POSTGRES_PASSWORD=password
     env_file:
       - .env
     volumes:
-      - api-data:/var/lib/postgresql/data
+      - api-data-dev:/var/lib/postgresql/data
     networks:
-      - api-network
+      - api-network-dev
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ${APP_DB_NAME} -U ${APP_DB_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -d ${APP_DB_NAME} -U ${APP_DB_USER}" ]
       interval: 1m30s
       timeout: 10s
       retries: 5
       start_period: 30s
+    ports:
+      - 5432:5432
   server:
     build:
       dockerfile: ./docker/server/Dockerfile
@@ -24,13 +24,13 @@ services:
     env_file:
       - .env
     networks:
-      - api-network
+      - api-network-dev
     ports:
       - ${SERVER_PORT}:8080
     depends_on:
       database:
         condition: service_healthy
 volumes:
-  api-data:
+  api-data-dev:
 networks:
-  api-network:
+  api-network-dev:

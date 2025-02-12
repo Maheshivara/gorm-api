@@ -12,5 +12,9 @@ RUN go build -o ./app
 FROM alpine:3.20
 WORKDIR /api
 COPY --from=builder /api/src/app ./app
+RUN \
+  addgroup -S api-group &&\
+  adduser -S api-user -G api-group --no-create-home --disabled-password
+USER api-user
 CMD [ "./app" ]
 EXPOSE ${SERVER_PORT}
