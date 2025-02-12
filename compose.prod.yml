@@ -1,0 +1,48 @@
+services:
+  database:
+    build:
+      dockerfile: ./docker/database/Dockerfile
+      context: ./
+    env_file:
+      - .env
+    volumes:
+      - api-data:/var/lib/postgresql/data
+    networks:
+      - api-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${APP_DB_NAME} -U ${APP_DB_USER}" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  server:
+    build:
+      dockerfile: ./docker/server/Dockerfile
+      context: ./
+    env_file:
+      - .env
+    networks:
+      - api-network
+    depends_on:
+      database:
+        condition: service_healthy
+  proxy:
+    build:
+      dockerfile: ./docker/proxy/Dockerfile
+      context: ./
+    env_file:
+      - .env
+    depends_on:
+      - server
+    volumes:
+      - caddy_data:/data
+    networks:
+      - api-network
+    ports:
+      - 80:80
+      - 443:443
+volumes:
+  api-data:
+  caddy_data:
+networks:
+  api-network:
