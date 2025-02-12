@@ -8,7 +8,7 @@ services:
     volumes:
       - api-data:/var/lib/postgresql/data
     networks:
-      - api-network
+      - database-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d ${APP_DB_NAME} -U ${APP_DB_USER}" ]
       interval: 1m30s
@@ -22,6 +22,7 @@ services:
     env_file:
       - .env
     networks:
+      - database-network
       - api-network
     depends_on:
       database:
@@ -46,3 +47,4 @@ volumes:
   caddy_data:
 networks:
   api-network:
+  database-network:
