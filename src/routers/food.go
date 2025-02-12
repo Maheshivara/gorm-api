@@ -45,13 +45,13 @@ func (f *food) Create(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&requestFood)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 	newFood, err := f.services.Create(&models.Food{Name: requestFood.Name, Price: requestFood.Price})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	c.JSON(http.StatusCreated, newFood)
@@ -75,20 +75,20 @@ func (f *food) Update(c *gin.Context) {
 	idParam := c.Params.ByName("id")
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 
 	var requestFood request.Food
 	err = c.ShouldBindJSON(&requestFood)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 	updatedFood, err := f.services.Update(&models.Food{ID: id, Name: requestFood.Name, Price: requestFood.Price})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	c.JSON(http.StatusOK, updatedFood)
@@ -131,13 +131,13 @@ func (f *food) List(c *gin.Context) {
 	foodList, err := f.services.List(pageInfo)
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	c.JSON(http.StatusOK, foodList)
 }
 
-// UpdateFood
+// DeleteFood
 //
 //	@Summary		Remove Comida.
 //	@Description	Deleta uma Comida existente.
@@ -153,18 +153,18 @@ func (f *food) Delete(c *gin.Context) {
 	idParam := c.Params.ByName("id")
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 
 	deleted, err := f.services.Delete(&models.Food{ID: id})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	if !deleted {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
