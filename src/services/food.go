@@ -52,9 +52,12 @@ func (*food) List(pageInfo *response.Pagination) (*response.SearchResult, error)
 func (*food) Update(food *models.Food) (*models.Food, error) {
 	driver := driver.Get()
 
-	tx := driver.Save(food)
+	tx := driver.Model(&models.Food{}).Where("id = ?", food.ID).Updates(food)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		return nil, nil
 	}
 
 	return food, nil

@@ -91,6 +91,10 @@ func (f *food) Update(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
+	if updatedFood == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		return
+	}
 	c.JSON(http.StatusOK, updatedFood)
 }
 
