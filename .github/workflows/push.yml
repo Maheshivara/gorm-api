@@ -26,6 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Generate Tag
         id: generate_tag
         run: |
