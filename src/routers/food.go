@@ -20,10 +20,12 @@ type Food interface {
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
 }
-type food struct{}
+type food struct {
+	services s.Food
+}
 
-func FoodRouter() Food {
-	return &food{}
+func FoodRouter(services s.Food) Food {
+	return &food{services: services}
 }
 
 // CreateFood
@@ -38,18 +40,18 @@ func FoodRouter() Food {
 //	@Failure		422		{object}	response.ApiError
 //	@Failure		500		{object}	response.ApiError
 //	@Router			/foods [post]
-func (*food) Create(c *gin.Context) {
+func (f *food) Create(c *gin.Context) {
 	var requestFood request.Food
 
 	err := c.ShouldBindJSON(&requestFood)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	newFood, err := s.FoodService().Create(&models.Food{Name: requestFood.Name, Price: requestFood.Price})
+	newFood, err := f.services.Create(&models.Food{Name: requestFood.Name, Price: requestFood.Price})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	c.JSON(http.StatusCreated, newFood)
@@ -69,24 +71,28 @@ func (*food) Create(c *gin.Context) {
 //	@Failure		422		{object}	response.ApiError
 //	@Failure		500		{object}	response.ApiError
 //	@Router			/foods/{id} [put]
-func (*food) Update(c *gin.Context) {
+func (f *food) Update(c *gin.Context) {
 	idParam := c.Params.ByName("id")
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 
 	var requestFood request.Food
 	err = c.ShouldBindJSON(&requestFood)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	updatedFood, err := s.FoodService().Update(&models.Food{ID: id, Name: requestFood.Name, Price: requestFood.Price})
+	updatedFood, err := f.services.Update(&models.Food{ID: id, Name: requestFood.Name, Price: requestFood.Price})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		return
+	}
+	if updatedFood == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 	c.JSON(http.StatusOK, updatedFood)
@@ -103,7 +109,7 @@ func (*food) Update(c *gin.Context) {
 //	@Success		200		{object}	response.SearchResult
 //	@Failure		500		{object}	response.ApiError
 //	@Router			/foods [get]
-func (*food) List(c *gin.Context) {
+func (f *food) List(c *gin.Context) {
 	pageInfo := &response.Pagination{
 		Page:    1,
 		PerPage: 20,
@@ -126,16 +132,16 @@ func (*food) List(c *gin.Context) {
 		}
 	}
 
-	foodList, err := s.FoodService().List(pageInfo)
+	foodList, err := f.services.List(pageInfo)
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	c.JSON(http.StatusOK, foodList)
 }
 
-// UpdateFood
+// DeleteFood
 //
 //	@Summary		Remove Comida.
 //	@Description	Deleta uma Comida existente.
@@ -147,22 +153,22 @@ func (*food) List(c *gin.Context) {
 //	@Failure		422	{object}	response.ApiError
 //	@Failure		500	{object}	response.ApiError
 //	@Router			/foods/{id} [delete]
-func (*food) Delete(c *gin.Context) {
+func (f *food) Delete(c *gin.Context) {
 	idParam := c.Params.ByName("id")
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 
-	deleted, err := s.FoodService().Delete(&models.Food{ID: id})
+	deleted, err := f.services.Delete(&models.Food{ID: id})
 	if err != nil {
 		log.Print(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": messages.INTERNAL_SERVER_ERROR})
 		return
 	}
 	if !deleted {
-		c.JSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": messages.NOT_FOUND_ERROR})
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)

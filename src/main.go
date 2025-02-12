@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gormCompose/src/driver"
 	"gormCompose/src/routers"
+	"gormCompose/src/services"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -28,8 +29,13 @@ import (
 func main() {
 	godotenv.Load(".env")
 	serverPort := os.Getenv("SERVER_PORT")
+	domainUrl := os.Getenv("APP_DOMAIN_URL")
+	serverEnv := os.Getenv("SERVER_ENV")
+	if serverEnv == "DEV" {
+		domainUrl = fmt.Sprintf("localhost:%s", serverPort)
+	}
 	driver.Migrate()
-	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%s", serverPort)
+	docs.SwaggerInfo.Host = domainUrl
 
 	app := gin.Default()
 	app.SetTrustedProxies([]string{"localhost", "127.0.0.1"})
@@ -41,7 +47,7 @@ func main() {
 	})
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	foodRouter := routers.FoodRouter()
+	foodRouter := routers.FoodRouter(services.FoodService())
 	foodGroup := api.Group("/foods")
 	foodGroup.POST("", foodRouter.Create)
 	foodGroup.PUT("/:id", foodRouter.Update)

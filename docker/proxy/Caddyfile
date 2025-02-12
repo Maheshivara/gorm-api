@@ -1,0 +1,3 @@
+{$APP_DOMAIN_URL} {
+  reverse_proxy server:{$SERVER_PORT}
+}

@@ -6,17 +6,15 @@ services:
     env_file:
       - .env
     volumes:
-      - api-data-dev:/var/lib/postgresql/data
+      - api-data:/var/lib/postgresql/data
     networks:
-      - api-network-dev
+      - database-network
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d ${APP_DB_NAME} -U ${APP_DB_USER}" ]
       interval: 1m30s
       timeout: 10s
       retries: 5
       start_period: 30s
-    ports:
-      - 5432:5432
   server:
     build:
       dockerfile: ./docker/server/Dockerfile
@@ -24,13 +22,29 @@ services:
     env_file:
       - .env
     networks:
-      - api-network-dev
-    ports:
-      - ${SERVER_PORT}:8080
+      - database-network
+      - api-network
     depends_on:
       database:
         condition: service_healthy
+  proxy:
+    build:
+      dockerfile: ./docker/proxy/Dockerfile
+      context: ./
+    env_file:
+      - .env
+    depends_on:
+      - server
+    volumes:
+      - caddy_data:/data
+    networks:
+      - api-network
+    ports:
+      - 80:80
+      - 443:443
 volumes:
-  api-data-dev:
+  api-data:
+  caddy_data:
 networks:
-  api-network-dev:
+  api-network:
+  database-network:
