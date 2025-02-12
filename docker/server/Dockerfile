@@ -1,4 +1,4 @@
-FROM golang:alpine3.20 AS builder
+FROM 1.24rc3-alpine3.20 AS builder
 
 WORKDIR /api
 
