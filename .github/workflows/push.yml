@@ -68,7 +68,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "docker/database/*"
-          target: /home/${{ secrets.SSH_USERNAME }}/api/docker/database
+          target: /home/${{ secrets.SSH_USERNAME }}/api
 
       - name: Copy proxy config using SCP
         uses: appleboy/scp-action@v0.1.7
@@ -78,7 +78,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "docker/proxy/*"
-          target: /home/${{ secrets.SSH_USERNAME }}/api/docker/proxy
+          target: /home/${{ secrets.SSH_USERNAME }}/api
 
       - name: Copy docker compose using SCP
         uses: appleboy/scp-action@v0.1.7
