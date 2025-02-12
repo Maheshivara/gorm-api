@@ -30,6 +30,10 @@ func main() {
 	godotenv.Load(".env")
 	serverPort := os.Getenv("SERVER_PORT")
 	domainUrl := os.Getenv("APP_DOMAIN_URL")
+	serverEnv := os.Getenv("SERVER_ENV")
+	if serverEnv == "DEV" {
+		domainUrl = fmt.Sprintf("localhost:%s", serverPort)
+	}
 	driver.Migrate()
 	docs.SwaggerInfo.Host = domainUrl
 
