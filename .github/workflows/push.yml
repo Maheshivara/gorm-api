@@ -1,0 +1,120 @@
+# Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, SSH_HOST, SSH_USERNAME, SSH_KEY, SSH_PORT, POSTGRES_PASSWORD, APP_DB_USER, APP_DB_PASSWORD, APP_DB_NAME, APP_DOMAIN_URL
+
+name: Test, Build, and Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Golang
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
+      
+      - name: Install dependencies
+        run: go mod download
+      
+      - name: Run tests
+        run: go test -v ./...
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Generate Tag
+        id: generate_tag
+        run: |
+          SHA=$(echo $GITHUB_SHA | head -c7)
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Login into the Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+            
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/server/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:${{ steps.generate_tag.outputs.sha }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy database config using SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker/database/*"
+          target: ~/api/docker/database
+
+      - name: Copy proxy config using SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker/proxy/*"
+          target: ~/api/docker/proxy
+
+      - name: Copy docker compose using SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "compose.prod.yml*"
+          target: ~/api
+
+      - name: Access SSH using a private key
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd api
+            cat <<EOF >> .env
+            # Database
+            POSTGRES_HOST="database"
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            DATABASE_PORT="5432"
+            APP_DB_USER=${{ secrets.APP_DB_USER }}
+            APP_DB_PASSWORD=${{ secrets.APP_DB_PASSWORD }}
+            APP_DB_NAME=${{ secrets.APP_DB_NAME }}
+
+            # Server
+            SERVER_PORT="8080"
+            SERVER_ENV="PROD"
+            GIN_MODE="release"
+
+            # Proxy
+            APP_DOMAIN_URL=${{ secrets.APP_DOMAIN_URL }}
+
+            # Docker
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
+            TAG=${{ steps.generate_tag.outputs.sha }}
+            EOF
+            echo ${{secrets.DOCKERHUB_TOKEN}} | docker login --username ${{secrets.DOCKERHUB_USERNAME }} --password-stdin
+            docker compose -f compose.prod.yml up -d

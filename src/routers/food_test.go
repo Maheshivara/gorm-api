@@ -17,6 +17,7 @@ import (
 
 func TestFoodRouter_Create(t *testing.T) {
 	testCases := createFoodTest{}
+	gin.SetMode(gin.TestMode)
 	t.Run("Test when create food is successful", testCases.whenCreateFoodSuccess)
 	t.Run("Test when create food has no name", testCases.whenCreateFoodHasNoName)
 	t.Run("Test when create food has no price", testCases.whenCreateFoodHasNoPrice)
@@ -162,6 +163,7 @@ func (*createFoodTest) whenCreateFoodHasInternalError(t *testing.T) {
 
 func TestFoodRouter_Update(t *testing.T) {
 	testCases := updateFoodTest{}
+	gin.SetMode(gin.TestMode)
 	t.Run("Test when update food is successful", testCases.whenUpdateFoodSuccess)
 	t.Run("Test when update food has no name", testCases.whenUpdateFoodHasNoName)
 	t.Run("Test when update food has no price", testCases.whenUpdateFoodHasNoPrice)
@@ -361,6 +363,7 @@ func (*updateFoodTest) whenUpdateFoodIsNotFound(t *testing.T) {
 
 func TestFoodRouter_List(t *testing.T) {
 	testCases := listFoodTest{}
+	gin.SetMode(gin.TestMode)
 	t.Run("Test when list food is successful", testCases.whenListFoodSuccess)
 	t.Run("Test when list food has internal error", testCases.whenListFoodHasInternalError)
 }
@@ -410,6 +413,7 @@ func (*listFoodTest) whenListFoodHasInternalError(t *testing.T) {
 
 func TestFoodRouter_Delete(t *testing.T) {
 	testCases := deleteFoodTest{}
+	gin.SetMode(gin.TestMode)
 	t.Run("Test when delete food is successful", testCases.whenDeleteFoodSuccess)
 	t.Run("Test when delete food has internal error", testCases.whenDeleteFoodHasInternalError)
 	t.Run("Test when delete food is not found", testCases.whenDeleteFoodIsNotFound)
