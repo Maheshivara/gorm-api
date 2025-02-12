@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gormCompose/src/driver"
 	"gormCompose/src/routers"
+	"gormCompose/src/services"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +42,7 @@ func main() {
 	})
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	foodRouter := routers.FoodRouter()
+	foodRouter := routers.FoodRouter(services.FoodService())
 	foodGroup := api.Group("/foods")
 	foodGroup.POST("", foodRouter.Create)
 	foodGroup.PUT("/:id", foodRouter.Update)

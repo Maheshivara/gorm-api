@@ -4,7 +4,6 @@ import (
 	"gormCompose/src/driver"
 	"gormCompose/src/models"
 	"gormCompose/src/response"
-	"log"
 )
 
 type Food interface {
@@ -32,7 +31,6 @@ func (*food) Create(food *models.Food) (*models.Food, error) {
 
 func (*food) List(pageInfo *response.Pagination) (*response.SearchResult, error) {
 	offset := (pageInfo.Page - 1) * pageInfo.PerPage
-	log.Print(offset)
 
 	var foodList []*models.Food
 	var total int64 = 0
