@@ -17,4 +17,4 @@ RUN \
   adduser -S api-user -G api-group --no-create-home --disabled-password
 USER api-user
 CMD [ "./app" ]
-EXPOSE ${SERVER_PORT}
+EXPOSE 8080
