@@ -99,7 +99,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/api
-            cat <<EOF >> .env
+            cat <<EOF > .env
             # Database
             POSTGRES_HOST="database"
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
