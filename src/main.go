@@ -38,7 +38,7 @@ func main() {
 	docs.SwaggerInfo.Host = domainUrl
 
 	app := gin.Default()
-	app.SetTrustedProxies([]string{"localhost", "127.0.0.1", "caddy"})
+	app.SetTrustedProxies([]string{"localhost", "127.0.0.1", "proxy"})
 
 	api := app.Group("/api")
 
