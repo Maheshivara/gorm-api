@@ -69,6 +69,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: 'docker/database/*'
           target: /home/${{ secrets.SSH_USERNAME }}/api
+          overwrite: true
 
       - name: Copy prometheus config using SCP
         uses: appleboy/scp-action@v0.1.7
@@ -79,6 +80,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: 'docker/prometheus/*'
           target: /home/${{ secrets.SSH_USERNAME }}/api
+          overwrite: true
 
       - name: Copy docker compose using SCP
         uses: appleboy/scp-action@v0.1.7
@@ -89,6 +91,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: 'compose.prod.yml*'
           target: /home/${{ secrets.SSH_USERNAME }}/api
+          overwrite: true
 
       - name: Access SSH using a private key
         uses: appleboy/ssh-action@v1.2.0
