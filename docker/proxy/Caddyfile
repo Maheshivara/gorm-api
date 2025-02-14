@@ -1,3 +1,12 @@
+{
+    metrics
+    admin :2019
+}
+
 {$APP_DOMAIN_URL} {
-  reverse_proxy server:{$SERVER_PORT}
+    reverse_proxy server:{$SERVER_PORT}
+}
+
+{$GRAFANA_DOMAIN_URL} {
+    reverse_proxy grafana:3000
 }
